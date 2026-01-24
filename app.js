@@ -88,7 +88,7 @@ class MetadataApp {
 
     // API Key Management
     loadApiKey() {
-        this.apiKey = localStorage.getItem('openai_api_key');
+        this.apiKey = localStorage.getItem('claude_api_key');
     }
 
     saveApiKey() {
@@ -100,7 +100,7 @@ class MetadataApp {
             return;
         }
 
-        localStorage.setItem('openai_api_key', apiKey);
+        localStorage.setItem('claude_api_key', apiKey);
         this.apiKey = apiKey;
 
         this.showStatus('apiKeyStatus', 'API key saved successfully!', 'success');
@@ -171,10 +171,10 @@ class MetadataApp {
         this.updateUI();
     }
 
-    // Metadata Generation with OpenAI
+    // Metadata Generation with Claude
     async generateMetadata(imageId) {
         if (!this.apiKey) {
-            alert('Please set your OpenAI API key in settings first.');
+            alert('Please set your Claude API key in settings first.');
             this.showSettingsModal();
             return;
         }
@@ -209,8 +209,8 @@ class MetadataApp {
     }
 
     async callGeminiAPI(base64Image, mimeType, filename) {
-        // Use OpenAI API for better reliability
-        const API_URL = 'https://api.openai.com/v1/chat/completions';
+        // Use Claude API for best results
+        const API_URL = 'https://api.anthropic.com/v1/messages';
 
         const prompt = `Act as an expert stock photography editor for a major global agency.
 You receive batches of photographs at a time. Your job is to write a professional, editorial‑style caption and a strong keyword set optimised for search and licensing for each image.
@@ -262,33 +262,36 @@ Notes:
 The filename is: ${filename}`;
 
         const requestBody = {
-            model: "gpt-4o-mini",
+            model: "claude-3-5-haiku-20241022",
+            max_tokens: 4096,
+            temperature: 0.4,
             messages: [
                 {
                     role: "user",
                     content: [
                         {
-                            type: "text",
-                            text: prompt
+                            type: "image",
+                            source: {
+                                type: "base64",
+                                media_type: mimeType,
+                                data: base64Image
+                            }
                         },
                         {
-                            type: "image_url",
-                            image_url: {
-                                url: `data:${mimeType};base64,${base64Image}`
-                            }
+                            type: "text",
+                            text: prompt
                         }
                     ]
                 }
-            ],
-            max_tokens: 4096,
-            temperature: 0.4
+            ]
         };
 
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.apiKey}`
+                'x-api-key': this.apiKey,
+                'anthropic-version': '2023-06-01'
             },
             body: JSON.stringify(requestBody)
         });
@@ -299,7 +302,7 @@ The filename is: ${filename}`;
         }
 
         const data = await response.json();
-        const text = data.choices[0].message.content;
+        const text = data.content[0].text;
 
         // Parse the response
         return this.parseGeminiResponse(text);
@@ -360,7 +363,7 @@ The filename is: ${filename}`;
         }
 
         if (!this.apiKey) {
-            alert('Please set your OpenAI API key in settings first.');
+            alert('Please set your Claude API key in settings first.');
             this.showSettingsModal();
             return;
         }

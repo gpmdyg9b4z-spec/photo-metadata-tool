@@ -1,11 +1,11 @@
 # Getty Images Metadata Tool
 
-A mobile-friendly web app that helps prepare images for Getty Images submission using OpenAI's API.
+A mobile-friendly web app that helps prepare images for Getty Images submission using Claude AI.
 
 ## Features
 
 - 📱 **Mobile-Optimized** - Works perfectly on iOS and Android browsers
-- 🤖 **AI-Powered** - Uses OpenAI's GPT-4o-mini to generate professional metadata
+- 🤖 **AI-Powered** - Uses Claude 3.5 Haiku to generate professional metadata
 - 📷 **Image Upload** - Upload single or multiple images
 - ✏️ **Edit Metadata** - Review and edit generated titles, descriptions, and keywords
 - 💾 **Auto-Save** - Progress saved locally in your browser
@@ -14,13 +14,13 @@ A mobile-friendly web app that helps prepare images for Getty Images submission 
 
 ## How to Use
 
-### 1. Get Your OpenAI API Key
+### 1. Get Your Claude API Key
 
-1. Visit [OpenAI Platform](https://platform.openai.com/api-keys)
+1. Visit [Anthropic Console](https://console.anthropic.com/settings/keys)
 2. Sign in or create an account
-3. Click "Create new secret key"
+3. Click "Create Key"
 4. Copy your API key
-5. Add credit to your account (costs ~$0.001 per image with GPT-4o-mini)
+5. Add credit to your account (costs ~$0.0005 per image with Claude 3.5 Haiku)
 
 ### 2. Set Up the App
 
@@ -70,17 +70,18 @@ The AI will analyze each image and create professional Getty Images-style metada
 
 - `index.html` - Main application page
 - `styles.css` - Mobile-optimized styling
-- `app.js` - Application logic and OpenAI API integration
+- `app.js` - Application logic and Claude API integration
 
 ## Technical Details
 
-### OpenAI API
+### Claude API
 
-This app uses the **GPT-4o-mini** model, which is:
-- 💰 **Very Affordable** - ~$0.001 per image (less than 1 cent)
-- ✅ **Fast** - Quick response times
-- ✅ **Reliable** - Works globally, excellent uptime
-- ✅ **Multimodal** - Can analyze images and generate text
+This app uses the **Claude 3.5 Haiku** model, which is:
+- 💰 **Extremely Affordable** - ~$0.0005 per image (half a cent per image!)
+- ✅ **Fast** - Very quick response times
+- ✅ **Reliable** - Excellent uptime and global availability
+- ✅ **Smart** - Claude excels at following detailed editorial guidelines
+- ✅ **Multimodal** - Can analyze images and generate structured text
 
 ### Browser Compatibility
 
@@ -98,8 +99,8 @@ This app uses the **GPT-4o-mini** model, which is:
 ### Privacy
 
 - 🔒 Your API key is stored only in your browser
-- 🔒 Images are sent directly to OpenAI API for processing
-- 🔒 No data is stored on any third-party servers besides OpenAI
+- 🔒 Images are sent directly to Claude API for processing
+- 🔒 No data is stored on any third-party servers besides Anthropic
 - 🔒 All processing happens client-side
 
 ## Tips for Best Results
@@ -146,8 +147,8 @@ This tool uses professional Getty Images editorial standards:
 ## Troubleshooting
 
 **API Key Not Working?**
-- Verify your API key at [OpenAI Platform](https://platform.openai.com/api-keys)
-- Ensure you have added credits to your OpenAI account
+- Verify your API key at [Anthropic Console](https://console.anthropic.com/settings/keys)
+- Ensure you have added credits to your Anthropic account
 - Check that you haven't exceeded rate limits
 
 **Images Not Uploading?**
@@ -172,6 +173,6 @@ MIT License - Feel free to modify and use for your own purposes.
 ## Credits
 
 Built with:
-- OpenAI GPT-4o-mini API
+- Claude 3.5 Haiku API (Anthropic)
 - Vanilla JavaScript
 - Mobile-first CSS
