@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Getty Images Metadata Tool</title>
+    <title>Getty Images Metadata Tool (OpenAI)</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -25,9 +25,9 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="apiKeyInput">Google Gemini API Key:</label>
+                        <label for="apiKeyInput">OpenAI API Key:</label>
                         <input type="password" id="apiKeyInput" placeholder="Enter your API key">
-                        <small>Get your free API key at <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a></small>
+                        <small>Get your API key at <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI Platform</a> (GPT-4o-mini ~$0.001/image)</small>
                     </div>
                     <button id="saveApiKeyBtn" class="btn btn-primary">Save API Key</button>
                     <div id="apiKeyStatus" class="status-message"></div>
@@ -39,7 +39,7 @@
         <main class="main-content">
             <!-- API Key Warning -->
             <div id="apiKeyWarning" class="warning-banner hidden">
-                <p>⚠️ Please set your Google Gemini API key in settings to use this app.</p>
+                <p>⚠️ Please set your OpenAI API key in settings to use this app.</p>
             </div>
 
             <!-- Upload Section -->

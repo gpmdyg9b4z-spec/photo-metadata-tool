@@ -1,11 +1,11 @@
 # Getty Images Metadata Tool
 
-A mobile-friendly web app that helps prepare images for Getty Images submission using Google Gemini's FREE API.
+A mobile-friendly web app that helps prepare images for Getty Images submission using OpenAI's API.
 
 ## Features
 
 - 📱 **Mobile-Optimized** - Works perfectly on iOS and Android browsers
-- 🤖 **AI-Powered** - Uses Google Gemini's free API to generate professional metadata
+- 🤖 **AI-Powered** - Uses OpenAI's GPT-4o-mini to generate professional metadata
 - 📷 **Image Upload** - Upload single or multiple images
 - ✏️ **Edit Metadata** - Review and edit generated titles, descriptions, and keywords
 - 💾 **Auto-Save** - Progress saved locally in your browser
@@ -14,12 +14,13 @@ A mobile-friendly web app that helps prepare images for Getty Images submission 
 
 ## How to Use
 
-### 1. Get Your Free Google Gemini API Key
+### 1. Get Your OpenAI API Key
 
-1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Sign in with your Google account
-3. Click "Create API Key"
+1. Visit [OpenAI Platform](https://platform.openai.com/api-keys)
+2. Sign in or create an account
+3. Click "Create new secret key"
 4. Copy your API key
+5. Add credit to your account (costs ~$0.001 per image with GPT-4o-mini)
 
 ### 2. Set Up the App
 
@@ -69,15 +70,16 @@ The AI will analyze each image and create professional Getty Images-style metada
 
 - `index.html` - Main application page
 - `styles.css` - Mobile-optimized styling
-- `app.js` - Application logic and Gemini API integration
+- `app.js` - Application logic and OpenAI API integration
 
 ## Technical Details
 
-### Google Gemini API
+### OpenAI API
 
-This app uses the **Gemini 1.5 Flash** model, which is:
-- ✅ **FREE** - Free tier includes 15 requests per minute
+This app uses the **GPT-4o-mini** model, which is:
+- 💰 **Very Affordable** - ~$0.001 per image (less than 1 cent)
 - ✅ **Fast** - Quick response times
+- ✅ **Reliable** - Works globally, excellent uptime
 - ✅ **Multimodal** - Can analyze images and generate text
 
 ### Browser Compatibility
@@ -96,8 +98,8 @@ This app uses the **Gemini 1.5 Flash** model, which is:
 ### Privacy
 
 - 🔒 Your API key is stored only in your browser
-- 🔒 Images are sent directly to Google Gemini API
-- 🔒 No data is stored on any third-party servers
+- 🔒 Images are sent directly to OpenAI API for processing
+- 🔒 No data is stored on any third-party servers besides OpenAI
 - 🔒 All processing happens client-side
 
 ## Tips for Best Results
@@ -144,8 +146,9 @@ This tool uses professional Getty Images editorial standards:
 ## Troubleshooting
 
 **API Key Not Working?**
-- Verify your API key at [Google AI Studio](https://makersuite.google.com/app/apikey)
-- Check that you haven't exceeded the free tier limits (15 requests/minute)
+- Verify your API key at [OpenAI Platform](https://platform.openai.com/api-keys)
+- Ensure you have added credits to your OpenAI account
+- Check that you haven't exceeded rate limits
 
 **Images Not Uploading?**
 - Check file format (JPG, PNG, WebP supported)
@@ -169,6 +172,6 @@ MIT License - Feel free to modify and use for your own purposes.
 ## Credits
 
 Built with:
-- Google Gemini API
+- OpenAI GPT-4o-mini API
 - Vanilla JavaScript
 - Mobile-first CSS

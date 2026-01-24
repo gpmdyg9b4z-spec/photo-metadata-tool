@@ -88,7 +88,7 @@ class MetadataApp {
 
     // API Key Management
     loadApiKey() {
-        this.apiKey = localStorage.getItem('gemini_api_key');
+        this.apiKey = localStorage.getItem('openai_api_key');
     }
 
     saveApiKey() {
@@ -100,7 +100,7 @@ class MetadataApp {
             return;
         }
 
-        localStorage.setItem('gemini_api_key', apiKey);
+        localStorage.setItem('openai_api_key', apiKey);
         this.apiKey = apiKey;
 
         this.showStatus('apiKeyStatus', 'API key saved successfully!', 'success');
@@ -171,10 +171,10 @@ class MetadataApp {
         this.updateUI();
     }
 
-    // Metadata Generation with Google Gemini
+    // Metadata Generation with OpenAI
     async generateMetadata(imageId) {
         if (!this.apiKey) {
-            alert('Please set your Google Gemini API key in settings first.');
+            alert('Please set your OpenAI API key in settings first.');
             this.showSettingsModal();
             return;
         }
@@ -209,7 +209,8 @@ class MetadataApp {
     }
 
     async callGeminiAPI(base64Image, mimeType, filename) {
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${this.apiKey}`;
+        // Use OpenAI API for better reliability
+        const API_URL = 'https://api.openai.com/v1/chat/completions';
 
         const prompt = `Act as an expert stock photography editor for a major global agency.
 You receive batches of photographs at a time. Your job is to write a professional, editorial‑style caption and a strong keyword set optimised for search and licensing for each image.
@@ -261,29 +262,33 @@ Notes:
 The filename is: ${filename}`;
 
         const requestBody = {
-            contents: [{
-                parts: [
-                    { text: prompt },
-                    {
-                        inline_data: {
-                            mime_type: mimeType,
-                            data: base64Image
+            model: "gpt-4o-mini",
+            messages: [
+                {
+                    role: "user",
+                    content: [
+                        {
+                            type: "text",
+                            text: prompt
+                        },
+                        {
+                            type: "image_url",
+                            image_url: {
+                                url: `data:${mimeType};base64,${base64Image}`
+                            }
                         }
-                    }
-                ]
-            }],
-            generationConfig: {
-                temperature: 0.4,
-                topK: 32,
-                topP: 1,
-                maxOutputTokens: 4096,
-            }
+                    ]
+                }
+            ],
+            max_tokens: 4096,
+            temperature: 0.4
         };
 
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.apiKey}`
             },
             body: JSON.stringify(requestBody)
         });
@@ -294,7 +299,7 @@ The filename is: ${filename}`;
         }
 
         const data = await response.json();
-        const text = data.candidates[0].content.parts[0].text;
+        const text = data.choices[0].message.content;
 
         // Parse the response
         return this.parseGeminiResponse(text);
@@ -355,7 +360,7 @@ The filename is: ${filename}`;
         }
 
         if (!this.apiKey) {
-            alert('Please set your Google Gemini API key in settings first.');
+            alert('Please set your OpenAI API key in settings first.');
             this.showSettingsModal();
             return;
         }
