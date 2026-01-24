@@ -209,7 +209,7 @@ class MetadataApp {
     }
 
     async callGeminiAPI(base64Image, mimeType) {
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`;
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${this.apiKey}`;
 
         const prompt = `Analyze this image for stock photography submission to Getty Images. Generate professional metadata:
 
