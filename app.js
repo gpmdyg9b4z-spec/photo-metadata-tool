@@ -209,7 +209,7 @@ class MetadataApp {
     }
 
     async callGeminiAPI(base64Image, mimeType, filename) {
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`;
+        const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`;
 
         const prompt = `Act as an expert stock photography editor for a major global agency.
 You receive batches of photographs at a time. Your job is to write a professional, editorial‑style caption and a strong keyword set optimised for search and licensing for each image.
