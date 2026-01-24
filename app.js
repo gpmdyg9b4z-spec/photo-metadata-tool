@@ -192,7 +192,7 @@ class MetadataApp {
             const mimeType = image.dataUrl.split(';')[0].split(':')[1];
 
             // Call Gemini API
-            const metadata = await this.callGeminiAPI(base64Image, mimeType);
+            const metadata = await this.callGeminiAPI(base64Image, mimeType, image.filename);
 
             // Update image metadata
             image.metadata = metadata;
@@ -208,30 +208,57 @@ class MetadataApp {
         }
     }
 
-    async callGeminiAPI(base64Image, mimeType) {
+    async callGeminiAPI(base64Image, mimeType, filename) {
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${this.apiKey}`;
 
-        const prompt = `Analyze this image for stock photography submission to Getty Images. Generate professional metadata:
+        const prompt = `Act as an expert stock photography editor for a major global agency.
+You receive batches of photographs at a time. Your job is to write a professional, editorial‑style caption and a strong keyword set optimised for search and licensing for each image.
 
-1. Title: Create a concise, descriptive title (50-70 characters) that accurately describes the main subject and action.
-2. Description: Write a detailed description (100-200 words) covering:
-   - Main subject and activity
-   - Setting and environment
-   - Mood and atmosphere
-   - Technical aspects (composition, lighting)
-   - Potential commercial uses
-3. Keywords: Provide 20-30 relevant keywords (comma-separated) including:
-   - Subject keywords
-   - Activity/action keywords
-   - Location/setting keywords
-   - Mood/emotion keywords
-   - Composition keywords
-   - Commercial use keywords
+Follow this structure exactly:
 
-Format your response EXACTLY as follows:
-TITLE: [your title here]
-DESCRIPTION: [your description here]
-KEYWORDS: [keyword1, keyword2, keyword3, ...]`;
+1. Caption format
+- Line 1: exact filename only, for example 'DSC_0001.jpg'.
+- Line 2: short, factual title in Title Case that states the main subject and, where known, the place (for example 'Historic Brick Townhouses With Shutters In Toulouse' or 'Woman Using Smartphone On Commuter Train').
+- Line 3: few paragraphs caption, present tense, starting with location and date in this format: 'City, Country – Month Day, Year. …'. Then give a precise, objective description that answers:
+  -  WHAT: main subject(s), actions, objects, visible text, materials, colours, environment.
+  -  WHERE: city, region, country, and specific place if it is known (street, square, building, interior, landscape, etc.).
+  -  WHEN: shooting date (already in the lead) and any relevant time of day or season if clear.
+  -  WHO: people or named places/brands only when clearly identifiable and relevant; add roles or professions if known (tourists, commuters, baker, student, etc.).
+  -  CONTEXT: only verifiable factual context: historical, architectural, cultural, economic or environmental facts that help a buyer understand the image. No speculation, no opinions, no marketing language.
+- Do NOT add a closing commentary sentence like 'The image illustrates…' or 'This symbolizes…'. Stay strictly descriptive.
+- Include relevant historical, architectural, cultural details and trivia. For example for place names, include origin history.
+
+2. Style rules
+- Neutral, precise language; avoid value adjectives like 'beautiful', 'stunning', 'picturesque', 'authentic', 'iconic'.
+- No guessing: if information is uncertain, leave it out or use safe wording such as 'unidentified woman', 'a type of pastry', 'appears to be an office building'.
+- Do not invent brands, names or exact locations you cannot see.
+- Use present tense, third person, and plain prose (no hashtags, no bullet points).
+- Two paragraphs
+
+3. Keywords
+- After the caption, add one line starting with 'Keywords:'.
+- Provide a comma‑separated list with:
+  -  Main subject and variants (e.g. 'Street Sign, Road Sign, Architecture, Apartment Building, Office, Food, Dessert, Landscape').
+  -  Visual details and materials (e.g. 'Brick, Stone, Glass, Wrought Iron, Neon Sign, Pastry, Laptop, Trees, Night, Daylight').
+  -  People and concepts (e.g. 'Woman, Man, Group Of People, Commuting, Travel, Tourism, Business, Technology, Education, Healthcare' where relevant).
+  -  Location hierarchy if known (neighbourhood, city, region/state, country, continent).
+  -  Usage concepts (e.g. 'Backgrounds, Copy Space, Lifestyle, Urban, Rural, No People, Editorial, Horizontal, Vertical').
+- No full stop at the end of the keyword line. Avoid duplicates and obvious spam. Use Getty Images compliant keywords. Singular preferred to plural.
+
+4. Output
+- Return exactly:
+  Line 1: filename
+  Line 2: title
+  Line 3: caption paragraph
+  Line 4: 'Keywords: …'
+- Do not add explanations, notes, or any extra text before or after these four lines.
+
+Notes:
+- For street name signs, architectural details, style, font of sign and what it says about when it was made, also include name origin history. Highlight quirks, errors, inconsistent spacing or alignment etc
+- For buildings, identify and name landmarks or main visible buildings, including architectural style, interesting facts, era and architect
+- For food and ingredients include current and historical uses, name origins
+
+The filename is: ${filename}`;
 
         const requestBody = {
             contents: [{
@@ -249,7 +276,7 @@ KEYWORDS: [keyword1, keyword2, keyword3, ...]`;
                 temperature: 0.4,
                 topK: 32,
                 topP: 1,
-                maxOutputTokens: 2048,
+                maxOutputTokens: 4096,
             }
         };
 
@@ -280,22 +307,38 @@ KEYWORDS: [keyword1, keyword2, keyword3, ...]`;
             keywords: ''
         };
 
-        // Extract title
-        const titleMatch = text.match(/TITLE:\s*(.+?)(?=\n|DESCRIPTION:|$)/s);
-        if (titleMatch) {
-            metadata.title = titleMatch[1].trim();
-        }
+        // Split response into lines
+        const lines = text.split('\n');
 
-        // Extract description
-        const descMatch = text.match(/DESCRIPTION:\s*(.+?)(?=\nKEYWORDS:|$)/s);
-        if (descMatch) {
-            metadata.description = descMatch[1].trim();
-        }
+        // Find the Keywords line
+        const keywordsIndex = lines.findIndex(line => line.toLowerCase().startsWith('keywords:'));
 
-        // Extract keywords
-        const keywordsMatch = text.match(/KEYWORDS:\s*(.+?)$/s);
-        if (keywordsMatch) {
-            metadata.keywords = keywordsMatch[1].trim();
+        if (keywordsIndex !== -1) {
+            // Line 1: filename (skip it)
+            // Line 2: title
+            if (lines.length > 1) {
+                metadata.title = lines[1].trim();
+            }
+
+            // Lines 3 to keywords line: caption
+            if (keywordsIndex > 2) {
+                const captionLines = lines.slice(2, keywordsIndex);
+                metadata.description = captionLines.join('\n').trim();
+            }
+
+            // Keywords line
+            const keywordsLine = lines[keywordsIndex];
+            metadata.keywords = keywordsLine.replace(/^keywords:\s*/i, '').trim();
+        } else {
+            // Fallback parsing if format doesn't match
+            // Try to extract anything after first line as title
+            if (lines.length > 1) {
+                metadata.title = lines[1].trim();
+            }
+            // Everything else as description
+            if (lines.length > 2) {
+                metadata.description = lines.slice(2).join('\n').trim();
+            }
         }
 
         return metadata;
@@ -384,7 +427,7 @@ KEYWORDS: [keyword1, keyword2, keyword3, ...]`;
         }
 
         // Create CSV header
-        let csv = 'Filename,Title,Description,Keywords\n';
+        let csv = 'Filename,Title,Caption,Keywords\n';
 
         // Add rows
         this.images.forEach(img => {
@@ -497,7 +540,7 @@ KEYWORDS: [keyword1, keyword2, keyword3, ...]`;
                 </div>
 
                 <div class="form-group">
-                    <label>Description:</label>
+                    <label>Caption:</label>
                     <textarea class="description-input"
                               data-id="${image.id}"
                               placeholder="Click Generate to create metadata">${image.metadata.description}</textarea>
