@@ -40,10 +40,18 @@ A mobile-friendly web app that helps prepare images for Getty Images submission 
 **For all images at once:**
 - Click "Generate All Metadata" button at the top
 
-The AI will analyze each image and create:
-- **Title** - Concise, descriptive title (50-70 characters)
-- **Description** - Detailed description (100-200 words)
-- **Keywords** - 20-30 relevant keywords for stock photography
+The AI will analyze each image and create professional Getty Images-style metadata:
+- **Title** - Short, factual title in Title Case (e.g., "Historic Brick Townhouses With Shutters In Toulouse")
+- **Caption** - Professional editorial caption with:
+  - Location and date in format: "City, Country – Month Day, Year"
+  - Detailed description of WHAT, WHERE, WHEN, WHO, and CONTEXT
+  - Historical, architectural, and cultural details
+  - Neutral, factual language following Getty editorial standards
+- **Keywords** - Getty-compliant comma-separated keywords including:
+  - Main subjects and visual details
+  - Materials, colors, and composition
+  - Location hierarchy (neighborhood, city, region, country)
+  - Usage concepts (Lifestyle, Urban, Editorial, etc.)
 
 ### 5. Edit Metadata
 
@@ -100,15 +108,38 @@ This app uses the **Gemini 1.5 Flash** model, which is:
 4. **Batch Processing** - Upload multiple images and use "Generate All"
 5. **Save Regularly** - Images auto-save, but export when done
 
-## Getty Images Submission Guidelines
+## Getty Images Editorial Format
 
-When preparing metadata for Getty Images:
+This tool uses professional Getty Images editorial standards:
 
-- **Title**: Clear, concise, factual description
-- **Description**: Comprehensive details about content, setting, and mood
-- **Keywords**: Relevant, specific terms (avoid keyword stuffing)
+### Caption Structure
+- **Location & Date**: Starts with "City, Country – Month Day, Year"
+- **WHAT**: Main subjects, actions, objects, visible text, materials, colors
+- **WHERE**: Specific places (streets, squares, buildings, landmarks)
+- **WHEN**: Date and time of day/season if clear
+- **WHO**: People, roles, or professions when identifiable
+- **CONTEXT**: Historical, architectural, cultural, or economic facts
+
+### Style Rules
+- Neutral, precise language (avoids "beautiful", "stunning", "iconic")
+- Present tense, third person
+- No speculation—only verifiable facts
+- Includes architectural styles, name origins, historical trivia
+- For buildings: identifies landmarks, architects, eras
+- For food: includes historical uses and name origins
+- For signs: notes font, style, quirks, spacing errors
+
+### Keywords
+- Getty-compliant, singular preferred over plural
+- Organized by subject, visual details, location, and usage
+- No duplicates or spam
+- Includes materials, composition, and commercial concepts
+
+### Submission Guidelines
+- Always review and refine AI-generated content
 - Follow Getty's editorial and commercial guidelines
 - Ensure you have proper model/property releases
+- Verify factual accuracy of historical and architectural details
 
 ## Troubleshooting
 
