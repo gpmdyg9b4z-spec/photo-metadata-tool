@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Getty Metadata Studio</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Geist:wght@300;400;500;600&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#0a0a0a;
+  --paper:#f5f2ed;
+  --cream:#ede9e2;
+  --rule:#c8c0b4;
+  --accent:#c4420a;
+  --accent2:#2a5f8f;
+  --muted:#7a7268;
+  --surface:#ffffff;
+  --done:#2d7a4f;
+  --warn:#b87a00;
+  --err:#c4420a;
+}
+
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Geist',sans-serif;
+  font-size:13px;
+  height:100vh;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+
+/* HEADER */
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 24px;
+  border-bottom:1.5px solid var(--ink);
+  background:var(--ink);
+  flex-shrink:0;
+}
+.wordmark{
+  font-family:'Instrument Serif',serif;
+  font-size:20px;
+  color:var(--paper);
+  letter-spacing:0.01em;
+}
+.wordmark span{color:var(--accent);font-style:italic;}
+.header-actions{display:flex;align-items:center;gap:10px;}
+
+.btn{
+  padding:7px 16px;
+  border-radius:2px;
+  font-family:'Geist',sans-serif;
+  font-size:12px;
+  font-weight:500;
+  cursor:pointer;
+  border:none;
+  transition:all 0.15s;
+  letter-spacing:0.02em;
+}
+.btn-light{background:var(--paper);color:var(--ink);}
+.btn-light:hover{background:#fff;}
+.btn-light:disabled{opacity:0.3;cursor:not-allowed;}
+.btn-accent{background:var(--accent);color:#fff;}
+.btn-accent:hover{background:#a33508;}
+.btn-accent:disabled{background:var(--rule);color:var(--muted);cursor:not-allowed;}
+.btn-blue{background:var(--accent2);color:#fff;}
+.btn-blue:hover{background:#1e4d75;}
+.btn-blue:disabled{background:var(--rule);color:var(--muted);cursor:not-allowed;}
+.btn-done{background:var(--done);color:#fff;}
+.btn-done:hover{background:#236040;}
+.btn-done:disabled{background:var(--rule);color:var(--muted);cursor:not-allowed;}
+
+/* CONTEXT BAR */
+.context-bar{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 24px;
+  border-bottom:1px solid var(--rule);
+  background:var(--cream);
+  flex-shrink:0;
+}
+.context-label{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  white-space:nowrap;
+}
+.context-input{
+  flex:1;
+  background:var(--surface);
+  border:1px solid var(--rule);
+  border-radius:2px;
+  padding:7px 12px;
+  font-family:'Geist',sans-serif;
+  font-size:12px;
+  color:var(--ink);
+  outline:none;
+}
+.context-input:focus{border-color:var(--accent2);}
+.folder-input{
+  background:var(--surface);
+  border:1px solid var(--rule);
+  border-radius:2px;
+  padding:7px 12px;
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  color:var(--ink);
+  outline:none;
+  width:280px;
+}
+.folder-input:focus{border-color:var(--accent2);}
+.folder-input::placeholder{color:var(--muted);}
+
+/* MAIN */
+.main{display:flex;flex:1;overflow:hidden;}
+
+/* SIDEBAR */
+.sidebar{
+  width:200px;
+  flex-shrink:0;
+  border-right:1px solid var(--rule);
+  display:flex;
+  flex-direction:column;
+  background:var(--cream);
+}
+.sidebar-header{
+  padding:10px 14px;
+  border-bottom:1px solid var(--rule);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  color:var(--muted);
+}
+.count-badge{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  padding:1px 6px;
+  border-radius:1px;
+}
+
+.drop-zone{
+  margin:10px;
+  border:1.5px dashed var(--rule);
+  border-radius:2px;
+  padding:18px 10px;
+  text-align:center;
+  cursor:pointer;
+  transition:all 0.2s;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.6;
+}
+.drop-zone:hover,.drop-zone.over{
+  border-color:var(--accent);
+  color:var(--accent);
+  background:rgba(196,66,10,0.04);
+}
+.drop-icon{font-size:22px;margin-bottom:6px;display:block;opacity:0.5;}
+#fileInput{display:none;}
+
+.file-list{flex:1;overflow-y:auto;padding:4px 0;}
+.file-list::-webkit-scrollbar{width:3px;}
+.file-list::-webkit-scrollbar-thumb{background:var(--rule);}
+
+.file-item{
+  padding:7px 14px;
+  cursor:pointer;
+  border-left:2px solid transparent;
+  transition:all 0.1s;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.file-item:hover{background:rgba(0,0,0,0.04);}
+.file-item.active{background:var(--surface);border-left-color:var(--accent);}
+.file-name{
+  flex:1;
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  color:var(--ink);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.dot-pending{background:var(--rule);}
+.dot-processing{background:var(--warn);animation:blink 1s infinite;}
+.dot-done{background:var(--done);}
+.dot-error{background:var(--err);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* DETAIL */
+.detail{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+
+.empty-state{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  color:var(--muted);
+}
+.empty-glyph{
+  font-family:'Instrument Serif',serif;
+  font-size:64px;
+  opacity:0.15;
+  line-height:1;
+}
+.empty-text{font-size:12px;}
+
+.detail-scroll{flex:1;overflow-y:auto;padding:24px;}
+.detail-scroll::-webkit-scrollbar{width:3px;}
+.detail-scroll::-webkit-scrollbar-thumb{background:var(--rule);}
+
+.detail-img{
+  width:100%;
+  max-height:200px;
+  object-fit:cover;
+  border-radius:2px;
+  border:1px solid var(--rule);
+  margin-bottom:20px;
+}
+
+.field{margin-bottom:16px;}
+.field-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:6px;
+}
+.field-label{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  color:var(--muted);
+}
+.copy-btn{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  padding:2px 8px;
+  border:1px solid var(--rule);
+  border-radius:1px;
+  background:transparent;
+  color:var(--muted);
+  cursor:pointer;
+  transition:all 0.15s;
+}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent);}
+.copy-btn.ok{border-color:var(--done);color:var(--done);}
+
+.field-body{
+  background:var(--surface);
+  border:1px solid var(--rule);
+  border-radius:2px;
+  padding:10px 14px;
+  font-size:12px;
+  line-height:1.7;
+  color:var(--ink);
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+.field-body.mono{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  line-height:1.8;
+}
+.field-body.kw{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  padding:10px 12px;
+}
+.kw-tag{
+  background:var(--cream);
+  border:1px solid var(--rule);
+  border-radius:1px;
+  padding:2px 8px;
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  color:var(--ink);
+}
+.kw-count{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  color:var(--muted);
+  margin-left:4px;
+}
+
+.placeholder-box{
+  background:var(--cream);
+  border:1px solid var(--rule);
+  border-radius:2px;
+  padding:28px;
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+}
+
+/* PROGRESS */
+.progress-bar{
+  padding:9px 24px;
+  border-top:1px solid var(--rule);
+  background:var(--cream);
+  display:flex;
+  align-items:center;
+  gap:14px;
+  flex-shrink:0;
+}
+.track{flex:1;height:2px;background:var(--rule);border-radius:1px;overflow:hidden;}
+.fill{height:100%;background:var(--accent);border-radius:1px;transition:width 0.4s ease;}
+.progress-label{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  color:var(--muted);
+  white-space:nowrap;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark">Getty Metadata <span>Studio</span></div>
+  <div class="header-actions">
+    <button class="btn btn-light" id="clearBtn" disabled>Clear</button>
+    <button class="btn btn-accent" id="processBtn" disabled>Generate metadata</button>
+    <div class="export-group">
+      <button class="btn btn-blue" id="exportBtn" disabled>⚡ Save &amp; Embed</button>
+      <button class="btn btn-done" id="exportLrBtn" disabled>↓ Lightroom CSV</button>
+    </div>
+  </div>
+</header>
+
+<div class="context-bar">
+  <span class="context-label">Shoot context</span>
+  <input class="context-input" id="contextInput" placeholder="e.g. Kensington mews streets, Victorian terraces and street signs, March 2026 — helps AI generate accurate metadata">
+  <span class="context-label" style="margin-left:8px;">T7 folder</span>
+  <input class="folder-input" id="folderInput" placeholder="e.g. 2026-03-07 High Street Kensington">
+</div>
+
+<div class="main">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      Images
+      <span class="count-badge" id="countBadge">0</span>
+    </div>
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+      <span class="drop-icon">⊕</span>
+      Drop JPEGs here<br>or click to browse
+    </div>
+    <input type="file" id="fileInput" accept="image/jpeg,image/png" multiple>
+    <div class="file-list" id="fileList"></div>
+  </div>
+
+  <div class="detail" id="detail">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-glyph">f/8</div>
+      <div class="empty-text">Add images to begin</div>
+    </div>
+    <div class="detail-scroll" id="detailScroll" style="display:none;"></div>
+  </div>
+</div>
+
+<div class="progress-bar" id="progressBar" style="display:none;">
+  <div class="track"><div class="fill" id="fill" style="width:0%"></div></div>
+  <span class="progress-label" id="progressLabel">0 / 0</span>
+</div>
+
+<script>
+const SYSTEM_PROMPT = `You are a professional stock photography metadata specialist for Getty Images with deep expertise in London architecture, history, and urban geography. Your metadata must meet Getty's editorial and SEO standards.
+
+OUTPUT FORMAT — for each image, output exactly four lines separated by a blank line between images. No extra text anywhere:
+Line 1: filename
+Line 2: Title — concise, accurate, max 60 characters, Title Case, no trailing punctuation. Describes exactly what is visible. A well-written specific title generates better keyword suggestions.
+Line 3: Description — exactly TWO sentences in English, rich and specific. Format:
+  SENTENCE 1: Begin with editorial dateline "Location, London — D Month YYYY:" then describe precisely what is visible — materials, typography, colours, architectural details, physical condition. Minimum 60 words for this sentence.
+  SENTENCE 2: Add specific historical, geographical or architectural context directly relevant to THIS subject — not generic commentary. Include named architects, dates, borough history, street etymology, or architectural movement where known. Minimum 60 words. Total description minimum 120 words.
+Line 4: Keywords — exactly 50 keywords, semicolon-separated, no spaces around semicolons. Follow Getty's hierarchy:
+  - Keywords 1-8: Primary (main subject, most specific and essential)
+  - Keywords 9-25: Secondary (descriptive details, materials, composition, setting, viewpoint)
+  - Keywords 26-50: Tertiary (broader concepts, mood, cultural context, style)
+
+KEYWORD RULES — follow strictly:
+- DO include: specific subjects, materials, architectural styles, composition terms (Close-up, Wide Shot, Eye Level, Low Angle View, High Angle View, Perspective View), setting terms (Outdoors, Daytime, Overcast, Sunny, Winter, Spring, Summer, Autumn), concept terms (British Culture, Heritage, Historic, Urban, Traditional, Conservation)
+- DO NOT include: country/city names (auto-added by DeepMeta), Horizontal/Vertical/Colour Image (file metadata), Editorial Use Only
+- BE SPECIFIC to trigger broader term hierarchies: use "Victorian Terraced House" not just "House", "Cast Iron Street Lamp" not just "Lamp"
+- USE Getty vocabulary terms: No People, Outdoors, Daytime, Architecture, Street Scene, Close-up, Wide Shot, Historic, Heritage etc.
+- AIM for 50 keywords that span who/what/where/when/why as per Getty guidelines
+
+SIGN IDENTIFICATION — read carefully:
+- Royal Borough of Kensington signs: white vitreous enamel ground, red blackletter script for borough name, black serif capitals for street name, red postcode. Green-edged metal frame with corner fixings.
+- Dark navy/green ground with white lettering = vitreous enamel on metal
+- Individual hand-set tiles = ceramic mosaic tile (common in former Metropolitan Borough of Hampstead)
+- Flat matte surface = painted metal. Never default to painted metal without visual evidence.`;
+
+let files=[], results={}, selectedIdx=null, isProcessing=false;
+
+const dropZone=document.getElementById('dropZone');
+const fileInput=document.getElementById('fileInput');
+const processBtn=document.getElementById('processBtn');
+const exportBtn=document.getElementById('exportBtn');
+const clearBtn=document.getElementById('clearBtn');
+
+dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('over');});
+dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('over'));
+dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remove('over');addFiles([...e.dataTransfer.files]);});
+fileInput.addEventListener('change',()=>{addFiles([...fileInput.files]);fileInput.value='';});
+clearBtn.addEventListener('click',()=>{
+  if(isProcessing)return;
+  files=[];results={};selectedIdx=null;
+  renderList();renderDetail();updateBtns();
+  document.getElementById('progressBar').style.display='none';
+});
+
+function addFiles(newFiles){
+  const imgs=newFiles.filter(f=>f.type.startsWith('image/'));
+  imgs.forEach(f=>{if(!files.find(x=>x.name===f.name))files.push(f);});
+  renderList();updateBtns();
+  if(selectedIdx===null&&files.length>0)selectFile(0);
+}
+
+function updateBtns(){
+  const n=files.length;
+  processBtn.disabled=n===0||isProcessing;
+  clearBtn.disabled=n===0||isProcessing;
+  exportBtn.disabled=Object.values(results).filter(r=>r.status==='done').length===0;
+  document.getElementById('exportLrBtn').disabled=Object.values(results).filter(r=>r.status==='done').length===0;
+  document.getElementById('countBadge').textContent=n;
+}
+
+function renderList(){
+  const list=document.getElementById('fileList');
+  list.innerHTML='';
+  files.forEach((f,i)=>{
+    const r=results[f.name];
+    const st=r?r.status:'pending';
+    const div=document.createElement('div');
+    div.className='file-item'+(selectedIdx===i?' active':'');
+    div.innerHTML=`<div class="dot dot-${st}"></div><div class="file-name" title="${f.name}">${f.name}</div>`;
+    div.addEventListener('click',()=>selectFile(i));
+    list.appendChild(div);
+  });
+}
+
+function selectFile(i){selectedIdx=i;renderList();renderDetail();}
+
+function renderDetail(){
+  const empty=document.getElementById('emptyState');
+  const scroll=document.getElementById('detailScroll');
+  if(selectedIdx===null||files.length===0){empty.style.display='flex';scroll.style.display='none';return;}
+  empty.style.display='none';scroll.style.display='flex';scroll.style.flexDirection='column';
+  const f=files[selectedIdx];
+  const r=results[f.name];
+  scroll.innerHTML='';
+
+  // Image preview removed — not supported in sandbox
+  const fnLabel=document.createElement('div');
+  fnLabel.style.cssText='font-family:"DM Mono",monospace;font-size:11px;color:var(--muted);margin-bottom:16px;padding:8px 12px;background:var(--cream);border-radius:2px;border:1px solid var(--rule);';
+  fnLabel.textContent=f.name;
+  scroll.appendChild(fnLabel);
+
+  if(!r||r.status==='pending'){
+    const ph=document.createElement('div');ph.className='placeholder-box';ph.textContent='Awaiting processing…';scroll.appendChild(ph);return;
+  }
+  if(r.status==='processing'){
+    const ph=document.createElement('div');ph.className='placeholder-box';ph.innerHTML='<span style="color:var(--warn)">Generating metadata…</span>';scroll.appendChild(ph);return;
+  }
+  if(r.status==='error'){
+    const ph=document.createElement('div');ph.className='placeholder-box';ph.innerHTML=`<span style="color:var(--err)">Error: ${r.error}</span>`;scroll.appendChild(ph);return;
+  }
+
+  // Title
+  addField(scroll,'Title',r.title,false);
+  // Description
+  addField(scroll,'Description',r.description,false);
+  // Keywords
+  addKwField(scroll,r.keywords);
+}
+
+function addField(parent,label,val,mono){
+  const div=document.createElement('div');div.className='field';
+  const head=document.createElement('div');head.className='field-head';
+  const lbl=document.createElement('span');lbl.className='field-label';lbl.textContent=label;
+  const cb=document.createElement('button');cb.className='copy-btn';cb.textContent='copy';
+  cb.onclick=()=>{navigator.clipboard.writeText(val);cb.textContent='copied';cb.classList.add('ok');setTimeout(()=>{cb.textContent='copy';cb.classList.remove('ok');},1500);};
+  head.appendChild(lbl);head.appendChild(cb);
+  const body=document.createElement('div');body.className='field-body'+(mono?' mono':'');body.textContent=val;
+  div.appendChild(head);div.appendChild(body);parent.appendChild(div);
+}
+
+function addKwField(parent,kwStr){
+  const kws=kwStr.split(';').map(k=>k.trim()).filter(Boolean);
+  const div=document.createElement('div');div.className='field';
+  const head=document.createElement('div');head.className='field-head';
+  const lbl=document.createElement('span');lbl.className='field-label';
+  lbl.innerHTML=`Keywords <span class="kw-count">${kws.length}/50</span>`;
+  const cb=document.createElement('button');cb.className='copy-btn';cb.textContent='copy all';
+  cb.onclick=()=>{navigator.clipboard.writeText(kwStr);cb.textContent='copied';cb.classList.add('ok');setTimeout(()=>{cb.textContent='copy all';cb.classList.remove('ok');},1500);};
+  head.appendChild(lbl);head.appendChild(cb);
+  const body=document.createElement('div');body.className='field-body kw';
+  kws.forEach((k,i)=>{
+    const tag=document.createElement('span');
+    tag.className='kw-tag';
+    if(i<8)tag.style.borderColor='var(--accent)';
+    else if(i<25)tag.style.borderColor='var(--accent2)';
+    tag.textContent=k;
+    body.appendChild(tag);
+  });
+  div.appendChild(head);div.appendChild(body);parent.appendChild(div);
+}
+
+// PROCESSING
+processBtn.addEventListener('click',startProcessing);
+
+async function startProcessing(){
+  isProcessing=true;processBtn.disabled=true;
+  document.getElementById('progressBar').style.display='flex';
+  const pending=files.filter(f=>!results[f.name]||results[f.name].status==='error');
+  const total=pending.length;let done=0;
+  const BATCH=3;
+  for(let i=0;i<pending.length;i+=BATCH){
+    const batch=pending.slice(i,i+BATCH);
+    batch.forEach(f=>{results[f.name]={status:'processing'};});
+    renderList();
+    if(batch.some(f=>f===files[selectedIdx]))renderDetail();
+    try{await processBatch(batch);}
+    catch(e){batch.forEach(f=>{results[f.name]={status:'error',error:e.message};});}
+    done+=batch.length;
+    document.getElementById('fill').style.width=Math.round((done/total)*100)+'%';
+    document.getElementById('progressLabel').textContent=`${done} / ${total}`;
+    renderList();
+    if(batch.some(f=>files.indexOf(f)===selectedIdx))renderDetail();
+    updateBtns();
+    if(i+BATCH<pending.length)await sleep(600);
+  }
+  isProcessing=false;updateBtns();
+}
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+async function toB64(file){
+  return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});
+}
+
+async function processBatch(batch){
+  const ctx=document.getElementById('contextInput').value.trim();
+  const content=[];
+  for(const f of batch){
+    const b64=await toB64(f);
+    content.push({type:'image',source:{type:'base64',media_type:f.type||'image/jpeg',data:b64}});
+    content.push({type:'text',text:`Filename: ${f.name}`});
+  }
+  const ctxNote=ctx?`\n\nShoot context provided by photographer: "${ctx}"`:'\n\nNo additional context provided — use visual analysis only.';
+  content.push({type:'text',text:`Generate metadata for the ${batch.length} image(s) above.${ctxNote}\n\nOutput exactly four lines per image (filename, title, description, keywords), separated by blank lines. No other text.`});
+
+  const response=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:3000,
+      system:SYSTEM_PROMPT,
+      messages:[{role:'user',content}]
+    })
+  });
+  if(!response.ok){const e=await response.json().catch(()=>({}));throw new Error(e.error?.message||`API ${response.status}`);}
+  const data=await response.json();
+  const text=data.content.find(b=>b.type==='text')?.text||'';
+  parseAndStore(text,batch);
+}
+
+function parseAndStore(text,batch){
+  const blocks=text.trim().split(/\n\s*\n/).filter(b=>b.trim());
+  batch.forEach((f,idx)=>{
+    const block=blocks[idx];
+    if(!block){results[f.name]={status:'error',error:'No output returned'};return;}
+    const lines=block.trim().split('\n');
+    if(lines.length<4){results[f.name]={status:'error',error:`Only ${lines.length} lines returned`};return;}
+    const title=lines[1].trim();
+    // Description = line 2, keywords = last line
+    const descLines=lines.slice(2,lines.length-1);
+    const description=descLines.join(' ').trim();
+    let keywords=lines[lines.length-1].trim().replace(/^keywords:\s*/i,'');
+    results[f.name]={status:'done',title,description,keywords};
+  });
+}
+
+// SAVE & EMBED — saves CSV to ~/Desktop/Getty Drops for auto-processing
+exportBtn.addEventListener('click', saveAndEmbed);
+
+async function saveAndEmbed(){
+  const folderName=document.getElementById('folderInput').value.trim();
+  const base=folderName
+    ? `/Volumes/Samsung PSSD T7/Getty Submissions/${folderName}/`
+    : '';
+
+  const today=new Date().toISOString().split('T')[0];
+  const filename=`getty_metadata_${today}.csv`;
+
+  const headers=['SourceFile','IPTC:ObjectName','IPTC:Caption-Abstract','IPTC:Keywords'];
+  const rows=[headers];
+
+  files.forEach(f=>{
+    const r=results[f.name];
+    if(!r||r.status!=='done')return;
+    const sf=base?base+f.name:f.name;
+    const title=r.title.replace(/"/g,"'");
+    const desc=r.description.replace(/"/g,"'").replace(/\n/g,' ');
+    rows.push([sf,title,desc,r.keywords]);
+  });
+
+  const csv=rows.map(row=>
+    row.map(cell=>{
+      const s=String(cell);
+      if(s.includes(',')||s.includes('"')||s.includes('\n')||s.includes(';'))
+        return '"'+s.replace(/"/g,'""')+'"';
+      return s;
+    }).join(',')
+  ).join('\r\n');
+
+  // Download CSV — save into Getty Drops folder when prompted
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=filename;a.click();
+  URL.revokeObjectURL(url);
+  exportBtn.textContent='✓ Save to Getty Drops folder';
+  setTimeout(()=>{exportBtn.textContent='⚡ Save & Embed';},4000);
+}
+// LR/TRANSPORTER EXPORT
+document.getElementById('exportLrBtn').addEventListener('click', exportLR);
+
+function exportLR(){
+  const today=new Date().toISOString().split('T')[0];
+  const filename=`getty_metadata_lr_${today}.csv`;
+
+  // LR/Transporter expects: Filename, Title, Caption, Keywords
+  const headers=['Filename','Title','Caption','Keywords'];
+  const rows=[headers];
+
+  files.forEach(f=>{
+    const r=results[f.name];
+    if(!r||r.status!=='done')return;
+    const title=r.title.replace(/"/g,"'");
+    const desc=r.description.replace(/"/g,"'").replace(/\n/g,' ');
+    const kw=r.keywords;
+    // LR/Transporter uses filename only, not full path
+    rows.push([f.name,title,desc,kw]);
+  });
+
+  const csv=rows.map(row=>
+    row.map(cell=>{
+      const s=String(cell);
+      if(s.includes(',')||s.includes('"')||s.includes('\n')||s.includes(';'))
+        return '"'+s.replace(/"/g,'""')+'"';
+      return s;
+    }).join(',')
+  ).join('\r\n');
+
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=filename;a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
